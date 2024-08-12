@@ -23,10 +23,13 @@ func NewHandler(log *log.Logger, secretKey []byte) *Handler {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		log.Info("Handling GET request")
+
 		tokenString := r.Header.Get("Authorization")
 		if tokenString == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprint(w, "Missing authorization header")
+			log.Warn("Missing authorization header")
 			return
 		}
 		tokenString = tokenString[len("Bearer "):]
@@ -35,17 +38,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprint(w, err.Error())
+			log.Warn(err)
 			return
 		}
 
+		log.Info("Token verified")
 		w.WriteHeader(http.StatusOK)
 	} else if r.Method == http.MethodPost {
+		log.Info("Handling POST request")
 		userName := r.Header.Get("X-User-Name")
 
 		if userName == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("missing X-User-Name"))
-
+			log.Warn("Missing X-User-Name")
 			return
 		}
 
@@ -53,13 +59,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
-
+			log.Error(err)
 			return
 		}
 
+		log.Info("Token created")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(fmt.Sprintf("{\"token: \"%s\"\"}", token)))
 	} else {
+		log.Info("Handling unsupported request")
+
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }

@@ -26,6 +26,10 @@ func main() {
 	secret := "test"
 	authHandler := handler.NewHandler(log, []byte(secret))
 
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	router.HandleFunc("/auth/token", authHandler.ServeHTTP)
 
 	log.WithField("port", config.Server.Port).Info("Listening to AuthServer...")

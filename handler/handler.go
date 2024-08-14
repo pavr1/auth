@@ -65,7 +65,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		log.Info("Token created")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("{\"token: \"%s\"\"}", token)))
+		w.Write([]byte(token))
 	} else {
 		log.Info("Handling unsupported request")
 
